@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  rest-api
+
+  Sample SAM Template for rest-api
+  
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  getAll:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: users/
+      Handler: app.getAll
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      Events:
+        getAll:
+          Type: Api
+          Properties:
+            Path: /getAll
+            Method: GET
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+
+  create:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: users/
+      Handler: app.create
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      Events:
+        create:
+          Type: Api
+          Properties:
+            Path: /create
+            Method: POST
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+
+  update:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: users/
+      Handler: app.update
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      Events:
+        update:
+          Type: Api
+          Properties:
+            Path: /update/{id}
+            Method: PUT
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+
+  delete:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: users/
+      Handler: app.delete
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      Events:
+        delete:
+          Type: Api
+          Properties:
+            Path: /delete/{id}
+            Method: DELETE
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+
+  UserTable:
+   Type: AWS::DynamoDB::Table
+   Properties:
+    TableName : User
+    AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+    KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+    ProvisionedThroughput:
+      ReadCapacityUnits: 2
+      WriteCapacityUnits: 2
+Outputs:
+  WebEndpoint:
+    Description: "REST API"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
